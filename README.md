@@ -1,3 +1,15 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/uM_GSLJS)
-# Food-Drink
-Final assignment
+﻿# NutriVision
+
+Student implementation repository for the Food and Drink coursework.
+
+## Current Status
+
+- Starter/demo code removed from branch `lz-21906394`.
+- Architecture baseline created.
+- Next step: scaffold our own .NET MAUI solution and implement features in small PRs.
+
+## Branch Strategy
+
+- Long-lived branch: `lz-21906394`
+- Feature branches: `feature/<small-scope>`
+- One small feature per PR for better readability and marking evidence.

@@ -1,27 +1,14 @@
-# Visual Studio / .NET
-.vs/
-.dotnet-home/
+﻿# Build output
 bin/
 obj/
-**/bin/
-**/obj/
 
-# MAUI / Android build outputs
-*.apk
-*.aab
-*.idsig
-*.keystore
-*.pdb
-FoodDrinkApp_GitHub_Upload.zip
-
-# User-specific files
+# Visual Studio
+.vs/
 *.user
 *.suo
-*.rsuser
 
-# OS files
-Thumbs.db
-Desktop.ini
+# Rider
+.idea/
 
-# Local build redirection output is configured outside the repo:
-# C:\MauiBuild\FoodDrinkApp
+# Logs
+*.log
