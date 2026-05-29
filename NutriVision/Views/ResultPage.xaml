@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriVision.Views.ResultPage"
+             Title="Result">
+    <VerticalStackLayout Padding="20" Spacing="10">
+        <Label Text="Result Page" FontSize="24" FontAttributes="Bold" />
+        <Label Text="结果详情页面将在前端优化阶段完成。" />
+    </VerticalStackLayout>
+</ContentPage>
+

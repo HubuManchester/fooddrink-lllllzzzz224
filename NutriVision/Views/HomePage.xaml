@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriVision.Views.HomePage"
+             Title="Home">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Label Text="NutriVision" FontSize="28" FontAttributes="Bold" />
+            <Label Text="今日热量" FontAttributes="Bold" />
+            <Label Text="{Binding TodayCalories}" FontSize="24" />
+            <Label Text="最近记录" FontAttributes="Bold" />
+            <Label Text="{Binding LatestSummary}" />
+            <Button Text="刷新数据"
+                    SemanticProperties.Description="刷新首页数据"
+                    Command="{Binding LoadCommand}" />
+            <Button Text="语音播报摘要"
+                    SemanticProperties.Description="播报今日热量和最近记录"
+                    Command="{Binding SpeakSummaryCommand}" />
+            <Label Text="{Binding ErrorMessage}" TextColor="Red" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+
