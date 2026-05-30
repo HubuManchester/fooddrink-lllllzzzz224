@@ -6,7 +6,9 @@ namespace NutriVision.Services;
 
 public sealed class MicrophoneService : IMicrophoneService
 {
-    public async Task<string?> ListenForFoodNameAsync(CancellationToken ct)
+    private const int HResultSpeechPrivacyDeclined = unchecked((int)0x80045509);
+
+    public async Task<VoiceInputResult> ListenForFoodNameAsync(CancellationToken ct)
     {
         try
         {
@@ -14,7 +16,7 @@ public sealed class MicrophoneService : IMicrophoneService
             var granted = await speechToText.RequestPermissions(ct);
             if (!granted)
             {
-                return null;
+                return VoiceInputResult.Fail(VoiceInputFailureReason.PermissionDenied);
             }
 
             string? latestPartial = null;
@@ -57,8 +59,8 @@ public sealed class MicrophoneService : IMicrophoneService
 
                 var finalText = result?.Text ?? latestPartial;
                 return string.IsNullOrWhiteSpace(finalText)
-                    ? null
-                    : finalText.Trim().ToLowerInvariant();
+                    ? VoiceInputResult.Fail(VoiceInputFailureReason.NoSpeechDetected)
+                    : VoiceInputResult.Success(finalText.Trim().ToLowerInvariant());
             }
             finally
             {
@@ -66,14 +68,30 @@ public sealed class MicrophoneService : IMicrophoneService
                 speechToText.RecognitionResultCompleted -= OnCompleted;
             }
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            return VoiceInputResult.Fail(VoiceInputFailureReason.PermissionDenied, ex.Message);
+        }
         catch (FeatureNotSupportedException)
         {
-            return null;
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unsupported);
         }
         catch (NotSupportedException)
         {
-            return null;
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unsupported);
+        }
+        catch (Exception ex) when (ex.HResult == HResultSpeechPrivacyDeclined)
+        {
+            return VoiceInputResult.Fail(VoiceInputFailureReason.SpeechPrivacyDisabled, ex.Message);
+        }
+        catch (Exception ex) when (ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase))
+        {
+            return VoiceInputResult.Fail(VoiceInputFailureReason.NetworkUnavailable, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            var detail = $"{ex.GetType().Name} (0x{ex.HResult:X8}): {ex.Message}";
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unknown, detail);
         }
     }
 }
-
