@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using CommunityToolkit.Maui;
 using NutriVision.Services;
 using NutriVision.Services.Abstractions;
 using NutriVision.ViewModels;
@@ -13,6 +14,7 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseMauiCommunityToolkit()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -27,6 +29,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ISpeechService, SpeechService>();
         builder.Services.AddSingleton<IHapticService, HapticService>();
         builder.Services.AddSingleton<IShakeService, ShakeService>();
+        builder.Services.AddSingleton<IMicrophoneService, MicrophoneService>();
         builder.Services.AddSingleton<ICameraService, CameraService>();
         builder.Services.AddSingleton<IScanWorkflowService, ScanWorkflowService>();
         builder.Services.AddHttpClient<IFoodRecognitionService, FoodRecognitionService>(client =>
@@ -56,4 +59,3 @@ public static class MauiProgram
         return builder.Build();
     }
 }
-
