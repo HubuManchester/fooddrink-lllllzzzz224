@@ -1,11 +1,99 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:NutriVision.ViewModels"
+             xmlns:models="clr-namespace:NutriVision.Models"
              x:Class="NutriVision.Views.HistoryPage"
+             x:DataType="viewModels:HistoryViewModel"
              Title="History">
-    <VerticalStackLayout Padding="20" Spacing="10">
-        <Label Text="History Page" FontSize="24" FontAttributes="Bold" />
-        <Label Text="历史、搜索、筛选 UI 将在后续 PR 完成。" />
-    </VerticalStackLayout>
-</ContentPage>
+    <Grid RowDefinitions="Auto,*">
+        <VerticalStackLayout Grid.Row="0"
+                             Padding="{OnIdiom Phone='16,12', Tablet='28,20', Desktop='32,20'}"
+                             Spacing="8">
+            <Label Text="History"
+                   FontAttributes="Bold"
+                   FontSize="{DynamicResource AppSubHeadlineFontSize}" />
+            <Label Text="{Binding ResultSummary}"
+                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="{DynamicResource AppErrorTextColor}" />
+        </VerticalStackLayout>
 
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Records}"
+                        SelectionMode="None"
+                        Margin="{OnIdiom Phone='16,0,16,12', Tablet='28,0,28,20', Desktop='32,0,32,20'}">
+            <CollectionView.Header>
+                <VerticalStackLayout Spacing="8" Padding="0,0,0,10">
+                    <Entry Text="{Binding SearchKeyword}"
+                           Placeholder="Search food name"
+                           SemanticProperties.Description="Search records by food name" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <DatePicker Date="{Binding FromDate}"
+                                    SemanticProperties.Description="Filter start date" />
+                        <DatePicker Grid.Column="1"
+                                    Date="{Binding ToDate}"
+                                    SemanticProperties.Description="Filter end date" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Entry Text="{Binding MinCaloriesText}"
+                               Keyboard="Numeric"
+                               Placeholder="Min kcal"
+                               SemanticProperties.Description="Minimum calories filter" />
+                        <Entry Grid.Column="1"
+                               Text="{Binding MaxCaloriesText}"
+                               Keyboard="Numeric"
+                               Placeholder="Max kcal"
+                               SemanticProperties.Description="Maximum calories filter" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Button Text="Apply Filters"
+                                Command="{Binding ApplyFiltersCommand}"
+                                SemanticProperties.Description="Apply history filters" />
+                        <Button Grid.Column="1"
+                                Text="Clear Filters"
+                                Command="{Binding ClearFiltersCommand}"
+                                SemanticProperties.Description="Clear all history filters" />
+                    </Grid>
+                </VerticalStackLayout>
+            </CollectionView.Header>
+
+            <CollectionView.EmptyView>
+                <Label Text="No records yet. Try scanning foods first."
+                       Padding="8"
+                       TextColor="{DynamicResource AppSecondaryTextColor}" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:ScanSession">
+                    <Border Padding="12"
+                            Margin="0,0,0,10"
+                            StrokeShape="RoundRectangle 10"
+                            BackgroundColor="{DynamicResource AppPageBackgroundColor}">
+                        <VerticalStackLayout Spacing="3">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding RecognizedFood, TargetNullValue='Unknown food'}"
+                                       FontAttributes="Bold"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Calories, StringFormat='{}{0:F0} kcal'}"
+                                       FontAttributes="Bold" />
+                            </Grid>
+                            <Label Text="{Binding TimestampUtc, StringFormat='UTC {0:yyyy-MM-dd HH:mm}'}"
+                                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+                            <Label Text="{Binding Location, TargetNullValue='Location unavailable'}"
+                                   LineBreakMode="TailTruncation"
+                                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+                            <Label Text="{Binding Protein, StringFormat='Protein {0:F1}g'}" />
+                            <Label Text="{Binding Fat, StringFormat='Fat {0:F1}g'}" />
+                            <Label Text="{Binding Carbs, StringFormat='Carbs {0:F1}g'}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

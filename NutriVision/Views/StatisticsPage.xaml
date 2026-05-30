@@ -1,11 +1,72 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:NutriVision.ViewModels"
+             xmlns:models="clr-namespace:NutriVision.Models"
              x:Class="NutriVision.Views.StatisticsPage"
+             x:DataType="viewModels:StatisticsViewModel"
              Title="Statistics">
-    <VerticalStackLayout Padding="20" Spacing="10">
-        <Label Text="Statistics Page" FontSize="24" FontAttributes="Bold" />
-        <Label Text="趋势图和营养比例图将在后续 PR 完成。" />
-    </VerticalStackLayout>
-</ContentPage>
+    <ScrollView>
+        <VerticalStackLayout Padding="{OnIdiom Phone='16,12', Tablet='28,20', Desktop='32,20'}"
+                             Spacing="12">
+            <Label Text="Statistics"
+                   FontSize="{DynamicResource AppSubHeadlineFontSize}"
+                   FontAttributes="Bold" />
 
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="{Binding DateRangeText}"
+                           TextColor="{DynamicResource AppSecondaryTextColor}" />
+                    <Label Text="{Binding TotalCaloriesText}"
+                           FontAttributes="Bold" />
+                </VerticalStackLayout>
+                <Button Grid.Column="1"
+                        Text="Refresh"
+                        Command="{Binding LoadCommand}"
+                        SemanticProperties.Description="Refresh statistics data" />
+            </Grid>
+
+            <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+
+            <Border Padding="12" StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="7-Day Calories Trend" FontAttributes="Bold" />
+                    <CollectionView ItemsSource="{Binding DailyTrend}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label Text="No data yet."
+                                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:DailyCaloriesBarItem">
+                                <Grid ColumnDefinitions="52,*,74" ColumnSpacing="8" Padding="0,2">
+                                    <Label Text="{Binding DayLabel}" />
+                                    <ProgressBar Grid.Column="1"
+                                                 Progress="{Binding Progress}" />
+                                    <Label Grid.Column="2"
+                                           HorizontalTextAlignment="End"
+                                           Text="{Binding CaloriesLabel}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="12" StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Macro Ratio" FontAttributes="Bold" />
+
+                    <Label Text="{Binding ProteinPercent, StringFormat='Protein {0:F1}%'}" />
+                    <ProgressBar Progress="{Binding ProteinProgress}" />
+
+                    <Label Text="{Binding FatPercent, StringFormat='Fat {0:F1}%'}" />
+                    <ProgressBar Progress="{Binding FatProgress}" />
+
+                    <Label Text="{Binding CarbsPercent, StringFormat='Carbs {0:F1}%'}" />
+                    <ProgressBar Progress="{Binding CarbsProgress}" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

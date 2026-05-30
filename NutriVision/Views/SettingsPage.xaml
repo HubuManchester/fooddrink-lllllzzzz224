@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:NutriVision.ViewModels"
@@ -6,43 +6,56 @@
              x:DataType="viewModels:SettingsViewModel"
              Title="Settings">
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="14">
-            <Label Text="Settings" FontSize="{DynamicResource AppSubHeadlineFontSize}" FontAttributes="Bold" />
+        <VerticalStackLayout Padding="{OnIdiom Phone='16,12', Tablet='28,20', Desktop='32,20'}"
+                             Spacing="12">
+            <Label Text="Settings"
+                   FontSize="{DynamicResource AppSubHeadlineFontSize}"
+                   FontAttributes="Bold" />
 
-            <Label Text="Theme" />
-            <Picker SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}"
-                    SemanticProperties.Description="Select app theme">
-                <Picker.Items>
-                    <x:String>System</x:String>
-                    <x:String>Light</x:String>
-                    <x:String>Dark</x:String>
-                </Picker.Items>
-            </Picker>
+            <Border Padding="12" StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Theme" />
+                    <Picker SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}"
+                            SemanticProperties.Description="Select app theme">
+                        <Picker.Items>
+                            <x:String>System</x:String>
+                            <x:String>Light</x:String>
+                            <x:String>Dark</x:String>
+                        </Picker.Items>
+                    </Picker>
 
-            <Label Text="Font size" />
-            <Picker SelectedIndex="{Binding SelectedFontScaleIndex, Mode=TwoWay}"
-                    SemanticProperties.Description="Select font size">
-                <Picker.Items>
-                    <x:String>Small</x:String>
-                    <x:String>Medium</x:String>
-                    <x:String>Large</x:String>
-                </Picker.Items>
-            </Picker>
+                    <Label Text="Font size" />
+                    <Picker SelectedIndex="{Binding SelectedFontScaleIndex, Mode=TwoWay}"
+                            SemanticProperties.Description="Select font size">
+                        <Picker.Items>
+                            <x:String>Small</x:String>
+                            <x:String>Medium</x:String>
+                            <x:String>Large</x:String>
+                        </Picker.Items>
+                    </Picker>
+                </VerticalStackLayout>
+            </Border>
 
-            <HorizontalStackLayout Spacing="10">
-                <Label Text="Speech enabled" VerticalOptions="Center" />
-                <Switch IsToggled="{Binding TtsEnabled, Mode=TwoWay}"
-                        SemanticProperties.Description="Enable or disable speech output" />
-            </HorizontalStackLayout>
+            <Border Padding="12" StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Text="Speech enabled" VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding TtsEnabled, Mode=TwoWay}"
+                                SemanticProperties.Description="Enable or disable speech output" />
+                    </Grid>
 
-            <HorizontalStackLayout Spacing="10">
-                <Label Text="High contrast" VerticalOptions="Center" />
-                <Switch IsToggled="{Binding HighContrastEnabled, Mode=TwoWay}"
-                        SemanticProperties.Description="Enable or disable high contrast mode" />
-            </HorizontalStackLayout>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <Label Text="High contrast mode" VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding HighContrastEnabled, Mode=TwoWay}"
+                                SemanticProperties.Description="Enable or disable high contrast mode" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
 
-            <Button Text="Apply"
-                    SemanticProperties.Description="Apply settings"
+            <Button Text="Apply Settings"
+                    SemanticProperties.Description="Apply settings and save them"
                     Command="{Binding ApplyCommand}" />
 
             <Label Text="{Binding ApplyMessage}" TextColor="{DynamicResource AppSuccessTextColor}" />

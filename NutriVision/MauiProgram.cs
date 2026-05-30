@@ -49,6 +49,8 @@ public static class MauiProgram
         // Frontend view models
         builder.Services.AddTransient<HomeViewModel>();
         builder.Services.AddTransient<ScanViewModel>();
+        builder.Services.AddTransient<HistoryViewModel>();
+        builder.Services.AddTransient<StatisticsViewModel>();
         builder.Services.AddTransient<SettingsViewModel>();
 
         // Frontend pages
