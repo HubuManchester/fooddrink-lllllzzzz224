@@ -1,24 +1,51 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:NutriVision.ViewModels"
              x:Class="NutriVision.Views.SettingsPage"
+             x:DataType="viewModels:SettingsViewModel"
              Title="Settings">
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="12">
+        <VerticalStackLayout Padding="20" Spacing="14">
             <Label Text="Settings" FontSize="24" FontAttributes="Bold" />
-            <Label Text="主题" />
-            <Picker SelectedIndex="0">
+
+            <Label Text="Theme" />
+            <Picker SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}"
+                    SemanticProperties.Description="Select app theme">
                 <Picker.Items>
                     <x:String>System</x:String>
                     <x:String>Light</x:String>
                     <x:String>Dark</x:String>
                 </Picker.Items>
             </Picker>
-            <Label Text="前端配置页面将在后续 PR 增强动态绑定。" />
-            <Button Text="应用"
-                    SemanticProperties.Description="应用设置"
+
+            <Label Text="Font size" />
+            <Picker SelectedIndex="{Binding SelectedFontScaleIndex, Mode=TwoWay}"
+                    SemanticProperties.Description="Select font size">
+                <Picker.Items>
+                    <x:String>Small</x:String>
+                    <x:String>Medium</x:String>
+                    <x:String>Large</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="Speech enabled" VerticalOptions="Center" />
+                <Switch IsToggled="{Binding TtsEnabled, Mode=TwoWay}"
+                        SemanticProperties.Description="Enable or disable speech output" />
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout Spacing="10">
+                <Label Text="High contrast" VerticalOptions="Center" />
+                <Switch IsToggled="{Binding HighContrastEnabled, Mode=TwoWay}"
+                        SemanticProperties.Description="Enable or disable high contrast mode" />
+            </HorizontalStackLayout>
+
+            <Button Text="Apply"
+                    SemanticProperties.Description="Apply settings"
                     Command="{Binding ApplyCommand}" />
+
+            <Label Text="{Binding ApplyMessage}" TextColor="Green" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
-

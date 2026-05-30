@@ -10,7 +10,13 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly IAppSettingsService _appSettingsService;
 
     [ObservableProperty]
+    private int selectedThemeIndex = (int)ThemeMode.System;
+
+    [ObservableProperty]
     private ThemeMode selectedTheme = ThemeMode.System;
+
+    [ObservableProperty]
+    private int selectedFontScaleIndex = (int)FontScale.Medium;
 
     [ObservableProperty]
     private FontScale selectedFontScale = FontScale.Medium;
@@ -20,6 +26,9 @@ public partial class SettingsViewModel : BaseViewModel
 
     [ObservableProperty]
     private bool highContrastEnabled;
+
+    [ObservableProperty]
+    private string applyMessage = string.Empty;
 
     public SettingsViewModel(IAppSettingsService appSettingsService)
     {
@@ -40,27 +49,74 @@ public partial class SettingsViewModel : BaseViewModel
         catch
         {
             // Keep defaults when settings cannot be loaded.
+            ApplyMessage = "Using default settings.";
         }
     }
 
     [RelayCommand]
-    private Task ApplyAsync()
+    private async Task ApplyAsync()
     {
-        Application.Current!.UserAppTheme = SelectedTheme switch
+        try
         {
-            ThemeMode.Light => AppTheme.Light,
-            ThemeMode.Dark => AppTheme.Dark,
-            _ => AppTheme.Unspecified
-        };
+            Application.Current!.UserAppTheme = SelectedTheme switch
+            {
+                ThemeMode.Light => AppTheme.Light,
+                ThemeMode.Dark => AppTheme.Dark,
+                _ => AppTheme.Unspecified
+            };
 
-        var settings = new AppSettings
+            var settings = new AppSettings
+            {
+                ThemeMode = SelectedTheme,
+                FontScale = SelectedFontScale,
+                TtsEnabled = TtsEnabled,
+                HighContrastEnabled = HighContrastEnabled
+            };
+
+            await _appSettingsService.SaveAsync(settings, CancellationToken.None);
+            ApplyMessage = "Settings saved.";
+        }
+        catch
         {
-            ThemeMode = SelectedTheme,
-            FontScale = SelectedFontScale,
-            TtsEnabled = TtsEnabled,
-            HighContrastEnabled = HighContrastEnabled
-        };
+            ApplyMessage = "Failed to save settings. Please retry.";
+        }
+    }
 
-        return _appSettingsService.SaveAsync(settings, CancellationToken.None);
+    partial void OnSelectedThemeIndexChanged(int value)
+    {
+        if (value is < 0 or > 2)
+        {
+            return;
+        }
+
+        SelectedTheme = (ThemeMode)value;
+    }
+
+    partial void OnSelectedThemeChanged(ThemeMode value)
+    {
+        var idx = (int)value;
+        if (SelectedThemeIndex != idx)
+        {
+            SelectedThemeIndex = idx;
+        }
+    }
+
+    partial void OnSelectedFontScaleIndexChanged(int value)
+    {
+        if (value is < 0 or > 2)
+        {
+            return;
+        }
+
+        SelectedFontScale = (FontScale)value;
+    }
+
+    partial void OnSelectedFontScaleChanged(FontScale value)
+    {
+        var idx = (int)value;
+        if (SelectedFontScaleIndex != idx)
+        {
+            SelectedFontScaleIndex = idx;
+        }
     }
 }
