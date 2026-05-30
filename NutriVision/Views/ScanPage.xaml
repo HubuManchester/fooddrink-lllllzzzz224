@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriVision.Views.ScanPage"
+             Title="Scan">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Label Text="扫描识别" FontSize="26" FontAttributes="Bold" />
+            <Button Text="拍照并识别"
+                    SemanticProperties.Description="拍照并执行食物识别"
+                    Command="{Binding ScanCommand}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            <Label Text="{Binding StatusText}" />
+            <Label Text="{Binding RecognizedFood}" FontAttributes="Bold" />
+            <Label Text="{Binding NutritionText}" />
+            <Label Text="{Binding Location}" />
+            <Label Text="{Binding ErrorMessage}" TextColor="Red" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
+

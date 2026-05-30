@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="NutriVision.Views.HistoryPage"
+             Title="History">
+    <VerticalStackLayout Padding="20" Spacing="10">
+        <Label Text="History Page" FontSize="24" FontAttributes="Bold" />
+        <Label Text="历史、搜索、筛选 UI 将在后续 PR 完成。" />
+    </VerticalStackLayout>
+</ContentPage>
+
