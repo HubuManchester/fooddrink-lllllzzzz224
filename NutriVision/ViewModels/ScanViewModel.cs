@@ -91,14 +91,21 @@ public partial class ScanViewModel : BaseViewModel
 
         try
         {
-            var foodName = await _microphoneService.ListenForFoodNameAsync(CancellationToken.None);
-            if (string.IsNullOrWhiteSpace(foodName))
+            var voiceResult = await _microphoneService.ListenForFoodNameAsync(CancellationToken.None);
+            if (!voiceResult.IsSuccess || string.IsNullOrWhiteSpace(voiceResult.FoodName))
             {
-                ErrorMessage = "No speech recognized. Please try again.";
+                ErrorMessage = voiceResult.FailureReason switch
+                {
+                    VoiceInputFailureReason.PermissionDenied => "Microphone permission was denied. Please enable it in system settings.",
+                    VoiceInputFailureReason.Unsupported => "Voice recognition is unavailable on this device.",
+                    VoiceInputFailureReason.NoSpeechDetected => "No speech recognized. Please try again and speak clearly.",
+                    _ => "Voice input failed. Please try again."
+                };
                 StatusText = "Voice input failed";
                 return;
             }
 
+            var foodName = voiceResult.FoodName!;
             var nutrition = await _nutritionService.GetNutritionAsync(foodName, CancellationToken.None);
             if (nutrition is null)
             {
@@ -125,7 +132,7 @@ public partial class ScanViewModel : BaseViewModel
         }
         catch
         {
-            ErrorMessage = "Voice recognition is unavailable on this device.";
+            ErrorMessage = "Voice input failed. Please try again.";
             StatusText = "Voice input unavailable";
         }
         finally
@@ -155,4 +162,3 @@ public partial class ScanViewModel : BaseViewModel
         await ScanAsync();
     }
 }
-

@@ -6,7 +6,7 @@ namespace NutriVision.Services;
 
 public sealed class MicrophoneService : IMicrophoneService
 {
-    public async Task<string?> ListenForFoodNameAsync(CancellationToken ct)
+    public async Task<VoiceInputResult> ListenForFoodNameAsync(CancellationToken ct)
     {
         try
         {
@@ -14,7 +14,7 @@ public sealed class MicrophoneService : IMicrophoneService
             var granted = await speechToText.RequestPermissions(ct);
             if (!granted)
             {
-                return null;
+                return VoiceInputResult.Fail(VoiceInputFailureReason.PermissionDenied);
             }
 
             string? latestPartial = null;
@@ -57,8 +57,8 @@ public sealed class MicrophoneService : IMicrophoneService
 
                 var finalText = result?.Text ?? latestPartial;
                 return string.IsNullOrWhiteSpace(finalText)
-                    ? null
-                    : finalText.Trim().ToLowerInvariant();
+                    ? VoiceInputResult.Fail(VoiceInputFailureReason.NoSpeechDetected)
+                    : VoiceInputResult.Success(finalText.Trim().ToLowerInvariant());
             }
             finally
             {
@@ -68,12 +68,15 @@ public sealed class MicrophoneService : IMicrophoneService
         }
         catch (FeatureNotSupportedException)
         {
-            return null;
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unsupported);
         }
         catch (NotSupportedException)
         {
-            return null;
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unsupported);
+        }
+        catch
+        {
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unknown);
         }
     }
 }
-
