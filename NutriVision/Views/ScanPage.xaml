@@ -5,7 +5,7 @@
              Title="Scan">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="12">
-            <Label Text="Food Recognition" FontSize="26" FontAttributes="Bold" />
+            <Label Text="Food Recognition" FontSize="{DynamicResource AppSubHeadlineFontSize}" FontAttributes="Bold" />
             <Button Text="Capture And Recognize"
                     SemanticProperties.Description="Capture food image and run recognition"
                     Command="{Binding ScanCommand}" />
@@ -17,8 +17,7 @@
             <Label Text="{Binding RecognizedFood}" FontAttributes="Bold" />
             <Label Text="{Binding NutritionText}" />
             <Label Text="{Binding Location}" />
-            <Label Text="{Binding ErrorMessage}" TextColor="Red" />
+            <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
-
