@@ -6,6 +6,8 @@ namespace NutriVision.Services;
 
 public sealed class MicrophoneService : IMicrophoneService
 {
+    private const int HResultSpeechPrivacyDeclined = unchecked((int)0x80045509);
+
     public async Task<VoiceInputResult> ListenForFoodNameAsync(CancellationToken ct)
     {
         try
@@ -66,6 +68,10 @@ public sealed class MicrophoneService : IMicrophoneService
                 speechToText.RecognitionResultCompleted -= OnCompleted;
             }
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            return VoiceInputResult.Fail(VoiceInputFailureReason.PermissionDenied, ex.Message);
+        }
         catch (FeatureNotSupportedException)
         {
             return VoiceInputResult.Fail(VoiceInputFailureReason.Unsupported);
@@ -74,9 +80,18 @@ public sealed class MicrophoneService : IMicrophoneService
         {
             return VoiceInputResult.Fail(VoiceInputFailureReason.Unsupported);
         }
-        catch
+        catch (Exception ex) when (ex.HResult == HResultSpeechPrivacyDeclined)
         {
-            return VoiceInputResult.Fail(VoiceInputFailureReason.Unknown);
+            return VoiceInputResult.Fail(VoiceInputFailureReason.SpeechPrivacyDisabled, ex.Message);
+        }
+        catch (Exception ex) when (ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase))
+        {
+            return VoiceInputResult.Fail(VoiceInputFailureReason.NetworkUnavailable, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            var detail = $"{ex.GetType().Name} (0x{ex.HResult:X8}): {ex.Message}";
+            return VoiceInputResult.Fail(VoiceInputFailureReason.Unknown, detail);
         }
     }
 }

@@ -99,9 +99,17 @@ public partial class ScanViewModel : BaseViewModel
                     VoiceInputFailureReason.PermissionDenied => "Microphone permission was denied. Please enable it in system settings.",
                     VoiceInputFailureReason.Unsupported => "Voice recognition is unavailable on this device.",
                     VoiceInputFailureReason.NoSpeechDetected => "No speech recognized. Please try again and speak clearly.",
+                    VoiceInputFailureReason.SpeechPrivacyDisabled => "Windows online speech recognition is disabled. Please enable Privacy > Speech and try again.",
+                    VoiceInputFailureReason.NetworkUnavailable => "Voice recognition needs network access. Please check your connection and try again.",
                     _ => "Voice input failed. Please try again."
                 };
                 StatusText = "Voice input failed";
+#if DEBUG
+                if (voiceResult.FailureReason == VoiceInputFailureReason.Unknown && !string.IsNullOrWhiteSpace(voiceResult.TechnicalMessage))
+                {
+                    StatusText = $"Voice input failed ({voiceResult.TechnicalMessage})";
+                }
+#endif
                 return;
             }
 
