@@ -9,12 +9,15 @@ public partial class ScanViewModel : BaseViewModel
 {
     private readonly IScanWorkflowService _scanWorkflowService;
     private readonly IHistoryRepository _historyRepository;
+    private readonly INutritionService _nutritionService;
+    private readonly ILocationService _locationService;
     private readonly ISpeechService _speechService;
     private readonly IHapticService _hapticService;
     private readonly IShakeService _shakeService;
+    private readonly IMicrophoneService _microphoneService;
 
     [ObservableProperty]
-    private string statusText = "准备拍照识别";
+    private string statusText = "Ready to scan food";
 
     [ObservableProperty]
     private string? recognizedFood;
@@ -28,15 +31,22 @@ public partial class ScanViewModel : BaseViewModel
     public ScanViewModel(
         IScanWorkflowService scanWorkflowService,
         IHistoryRepository historyRepository,
+        INutritionService nutritionService,
+        ILocationService locationService,
         ISpeechService speechService,
         IHapticService hapticService,
-        IShakeService shakeService)
+        IShakeService shakeService,
+        IMicrophoneService microphoneService)
     {
         _scanWorkflowService = scanWorkflowService;
         _historyRepository = historyRepository;
+        _nutritionService = nutritionService;
+        _locationService = locationService;
         _speechService = speechService;
         _hapticService = hapticService;
         _shakeService = shakeService;
+        _microphoneService = microphoneService;
+
         _shakeService.Shaken += OnShaken;
         _shakeService.Start();
     }
@@ -46,37 +56,92 @@ public partial class ScanViewModel : BaseViewModel
     {
         IsBusy = true;
         ErrorMessage = null;
-        StatusText = "识别中，请稍候...";
+        StatusText = "Recognizing from camera...";
 
         try
         {
             var (session, userError) = await _scanWorkflowService.RunAsync(CancellationToken.None);
             if (session is null)
             {
-                ErrorMessage = userError ?? "识别失败，请重试。";
-                StatusText = "识别失败";
+                ErrorMessage = userError ?? "Recognition failed. Please retry.";
+                StatusText = "Scan failed";
                 return;
             }
 
-            await _historyRepository.AddAsync(session, CancellationToken.None);
-
-            RecognizedFood = session.RecognizedFood;
-            Location = session.Location;
-            NutritionText = $"热量 {session.Calories:F0} kcal | 蛋白 {session.Protein:F1}g | 脂肪 {session.Fat:F1}g | 碳水 {session.Carbs:F1}g";
-            StatusText = "识别成功并已保存";
-
-            await _speechService.SpeakAsync($"识别到 {session.RecognizedFood}，热量 {session.Calories:F0} 千卡。", CancellationToken.None);
-            _hapticService.NotifySuccess();
+            await SaveAndPresentAsync(session, CancellationToken.None);
+            StatusText = "Scan success and saved";
         }
-        catch (Exception)
+        catch
         {
-            ErrorMessage = "处理失败，请稍后重试。";
-            StatusText = "处理失败";
+            ErrorMessage = "Processing failed. Please retry.";
+            StatusText = "Processing failed";
         }
         finally
         {
             IsBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task VoiceInputAsync()
+    {
+        IsBusy = true;
+        ErrorMessage = null;
+        StatusText = "Listening for food name...";
+
+        try
+        {
+            var foodName = await _microphoneService.ListenForFoodNameAsync(CancellationToken.None);
+            if (string.IsNullOrWhiteSpace(foodName))
+            {
+                ErrorMessage = "No speech recognized. Please try again.";
+                StatusText = "Voice input failed";
+                return;
+            }
+
+            var nutrition = await _nutritionService.GetNutritionAsync(foodName, CancellationToken.None);
+            if (nutrition is null)
+            {
+                ErrorMessage = $"'{foodName}' is not in nutrition dictionary yet.";
+                StatusText = "Voice recognized but unsupported food";
+                return;
+            }
+
+            var address = await _locationService.GetCurrentAddressAsync(CancellationToken.None) ?? "Location unavailable";
+            var session = new ScanSession
+            {
+                RecognizedFood = foodName,
+                Calories = nutrition.Calories,
+                Protein = nutrition.Protein,
+                Fat = nutrition.Fat,
+                Carbs = nutrition.Carbs,
+                Location = address,
+                TimestampUtc = DateTime.UtcNow,
+                Status = ScanStatus.Success
+            };
+
+            await SaveAndPresentAsync(session, CancellationToken.None);
+            StatusText = "Voice input success and saved";
+        }
+        catch
+        {
+            ErrorMessage = "Voice recognition is unavailable on this device.";
+            StatusText = "Voice input unavailable";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private async Task SaveAndPresentAsync(ScanSession session, CancellationToken ct)
+    {
+        await _historyRepository.AddAsync(session, ct);
+        RecognizedFood = session.RecognizedFood;
+        Location = session.Location;
+        NutritionText = $"Calories {session.Calories:F0} kcal | Protein {session.Protein:F1}g | Fat {session.Fat:F1}g | Carbs {session.Carbs:F1}g";
+        await _speechService.SpeakAsync($"Recognized {session.RecognizedFood}, calories {session.Calories:F0}.", ct);
+        _hapticService.NotifySuccess();
     }
 
     private async void OnShaken(object? sender, EventArgs e)
@@ -86,7 +151,7 @@ public partial class ScanViewModel : BaseViewModel
             return;
         }
 
-        StatusText = "检测到摇一摇，重新开始识别";
+        StatusText = "Shake detected, restarting scan";
         await ScanAsync();
     }
 }
