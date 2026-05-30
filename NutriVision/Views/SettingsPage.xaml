@@ -7,7 +7,7 @@
              Title="Settings">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="14">
-            <Label Text="Settings" FontSize="24" FontAttributes="Bold" />
+            <Label Text="Settings" FontSize="{DynamicResource AppSubHeadlineFontSize}" FontAttributes="Bold" />
 
             <Label Text="Theme" />
             <Picker SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}"
@@ -45,7 +45,7 @@
                     SemanticProperties.Description="Apply settings"
                     Command="{Binding ApplyCommand}" />
 
-            <Label Text="{Binding ApplyMessage}" TextColor="Green" />
+            <Label Text="{Binding ApplyMessage}" TextColor="{DynamicResource AppSuccessTextColor}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

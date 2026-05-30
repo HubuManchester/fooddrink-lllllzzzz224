@@ -36,6 +36,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<ILocalFallbackRecognitionService, LocalFallbackRecognitionService>();
         builder.Services.AddSingleton<INutritionService, NutritionService>();
         builder.Services.AddSingleton<IAppSettingsService, AppSettingsService>();
+        builder.Services.AddSingleton<IAppAppearanceService, AppAppearanceService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<ISpeechService, SpeechService>();
         builder.Services.AddSingleton<IHapticService, HapticService>();

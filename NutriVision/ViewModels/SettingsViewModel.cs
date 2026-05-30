@@ -8,6 +8,7 @@ namespace NutriVision.ViewModels;
 public partial class SettingsViewModel : BaseViewModel
 {
     private readonly IAppSettingsService _appSettingsService;
+    private readonly IAppAppearanceService _appAppearanceService;
 
     [ObservableProperty]
     private int selectedThemeIndex = (int)ThemeMode.System;
@@ -30,9 +31,10 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty]
     private string applyMessage = string.Empty;
 
-    public SettingsViewModel(IAppSettingsService appSettingsService)
+    public SettingsViewModel(IAppSettingsService appSettingsService, IAppAppearanceService appAppearanceService)
     {
         _appSettingsService = appSettingsService;
+        _appAppearanceService = appAppearanceService;
         _ = InitializeAsync();
     }
 
@@ -45,6 +47,7 @@ public partial class SettingsViewModel : BaseViewModel
             SelectedFontScale = settings.FontScale;
             TtsEnabled = settings.TtsEnabled;
             HighContrastEnabled = settings.HighContrastEnabled;
+            _appAppearanceService.Apply(settings);
         }
         catch
         {
@@ -74,6 +77,7 @@ public partial class SettingsViewModel : BaseViewModel
             };
 
             await _appSettingsService.SaveAsync(settings, CancellationToken.None);
+            _appAppearanceService.Apply(settings);
             ApplyMessage = "Settings saved.";
         }
         catch

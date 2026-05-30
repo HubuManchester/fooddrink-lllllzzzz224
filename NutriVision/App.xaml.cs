@@ -7,12 +7,14 @@ public partial class App : Application
 {
     private readonly AppShell _shell;
     private readonly IAppSettingsService _appSettingsService;
+    private readonly IAppAppearanceService _appAppearanceService;
 
-    public App(AppShell shell, IAppSettingsService appSettingsService)
+    public App(AppShell shell, IAppSettingsService appSettingsService, IAppAppearanceService appAppearanceService)
     {
         InitializeComponent();
         _shell = shell;
         _appSettingsService = appSettingsService;
+        _appAppearanceService = appAppearanceService;
         _ = RestoreSettingsAsync();
     }
 
@@ -26,12 +28,7 @@ public partial class App : Application
         try
         {
             var settings = await _appSettingsService.LoadAsync(CancellationToken.None);
-            UserAppTheme = settings.ThemeMode switch
-            {
-                ThemeMode.Light => AppTheme.Light,
-                ThemeMode.Dark => AppTheme.Dark,
-                _ => AppTheme.Unspecified
-            };
+            _appAppearanceService.Apply(settings);
         }
         catch
         {

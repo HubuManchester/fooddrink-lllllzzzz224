@@ -5,9 +5,9 @@
              Title="Home">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="12">
-            <Label Text="NutriVision" FontSize="28" FontAttributes="Bold" />
+            <Label Text="NutriVision" FontSize="{DynamicResource AppHeadlineFontSize}" FontAttributes="Bold" />
             <Label Text="今日热量" FontAttributes="Bold" />
-            <Label Text="{Binding TodayCalories}" FontSize="24" />
+            <Label Text="{Binding TodayCalories}" FontSize="{DynamicResource AppSubHeadlineFontSize}" />
             <Label Text="最近记录" FontAttributes="Bold" />
             <Label Text="{Binding LatestSummary}" />
             <Button Text="刷新数据"
@@ -16,8 +16,7 @@
             <Button Text="语音播报摘要"
                     SemanticProperties.Description="播报今日热量和最近记录"
                     Command="{Binding SpeakSummaryCommand}" />
-            <Label Text="{Binding ErrorMessage}" TextColor="Red" />
+            <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
-
