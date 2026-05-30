@@ -6,29 +6,53 @@ public sealed class ShakeService : IShakeService
 {
     private const double Threshold = 2.0;
     private DateTime _lastFired = DateTime.MinValue;
+    private bool _subscribed;
 
     public event EventHandler? Shaken;
 
     public void Start()
     {
-        if (Accelerometer.IsMonitoring)
+        if (!Accelerometer.Default.IsSupported || Accelerometer.IsMonitoring)
         {
             return;
         }
 
-        Accelerometer.ReadingChanged += OnReadingChanged;
-        Accelerometer.Start(SensorSpeed.Game);
+        try
+        {
+            if (!_subscribed)
+            {
+                Accelerometer.ReadingChanged += OnReadingChanged;
+                _subscribed = true;
+            }
+
+            Accelerometer.Start(SensorSpeed.Game);
+        }
+        catch (FeatureNotSupportedException)
+        {
+            // Some targets (or emulators) do not expose accelerometer.
+            Unsubscribe();
+        }
+        catch (NotSupportedException)
+        {
+            Unsubscribe();
+        }
     }
 
     public void Stop()
     {
-        if (!Accelerometer.IsMonitoring)
+        try
         {
-            return;
+            if (Accelerometer.IsMonitoring)
+            {
+                Accelerometer.Stop();
+            }
+        }
+        catch
+        {
+            // Ignore stop failures on unsupported platforms.
         }
 
-        Accelerometer.Stop();
-        Accelerometer.ReadingChanged -= OnReadingChanged;
+        Unsubscribe();
     }
 
     private void OnReadingChanged(object? sender, AccelerometerChangedEventArgs e)
@@ -49,5 +73,13 @@ public sealed class ShakeService : IShakeService
         _lastFired = now;
         Shaken?.Invoke(this, EventArgs.Empty);
     }
-}
 
+    private void Unsubscribe()
+    {
+        if (_subscribed)
+        {
+            Accelerometer.ReadingChanged -= OnReadingChanged;
+            _subscribed = false;
+        }
+    }
+}
