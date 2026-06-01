@@ -1,4 +1,3 @@
-using NutriVision.Helpers;
 using NutriVision.Models;
 using NutriVision.Services.Abstractions;
 
@@ -25,28 +24,72 @@ public sealed class ScanWorkflowService : IScanWorkflowService
 
     public async Task<(ScanSession? Session, string? UserError)> RunAsync(CancellationToken ct)
     {
-        var available = await _cameraService.IsAvailableAsync(ct);
-        if (!available)
+        bool available;
+        try
         {
-            return (null, ErrorMessages.CameraUnavailable);
+            available = await _cameraService.IsAvailableAsync(ct);
+        }
+        catch
+        {
+            return (null, "Camera check failed. Please retry.");
         }
 
-        var photo = await _cameraService.CaptureAsync(ct);
+        if (!available)
+        {
+            return (null, "Camera is unavailable on this device.");
+        }
+
+        CameraPhoto? photo;
+        try
+        {
+            photo = await _cameraService.CaptureAsync(ct);
+        }
+        catch
+        {
+            return (null, "Camera capture failed. Please check permission and retry.");
+        }
+
         if (photo is null)
         {
-            return (null, ErrorMessages.CameraPermissionDenied);
+            return (null, "Camera permission denied or capture canceled.");
         }
 
         await using (photo.Content)
         {
-            var recognition = await _foodRecognitionService.RecognizeAsync(photo.Content, ct);
-            if (!recognition.IsSuccess || string.IsNullOrWhiteSpace(recognition.FoodName))
+            RecognitionResult recognition;
+            try
             {
-                return (null, ErrorMessages.RecognitionEmpty);
+                recognition = await _foodRecognitionService.RecognizeAsync(photo.Content, ct);
+            }
+            catch
+            {
+                return (null, "Food recognition failed. Please retry.");
             }
 
-            var nutrition = await _nutritionService.GetNutritionAsync(recognition.FoodName, ct) ?? new NutritionInfo();
-            var address = await _locationService.GetCurrentAddressAsync(ct) ?? "位置不可用";
+            if (!recognition.IsSuccess || string.IsNullOrWhiteSpace(recognition.FoodName))
+            {
+                return (null, "No food was recognized. Please retake the photo.");
+            }
+
+            NutritionInfo nutrition;
+            try
+            {
+                nutrition = await _nutritionService.GetNutritionAsync(recognition.FoodName, ct) ?? new NutritionInfo();
+            }
+            catch
+            {
+                nutrition = new NutritionInfo();
+            }
+
+            string address;
+            try
+            {
+                address = await _locationService.GetCurrentAddressAsync(ct) ?? "Location unavailable";
+            }
+            catch
+            {
+                address = "Location unavailable";
+            }
 
             return (new ScanSession
             {
@@ -63,4 +106,3 @@ public sealed class ScanWorkflowService : IScanWorkflowService
         }
     }
 }
-

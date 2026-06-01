@@ -10,18 +10,33 @@ public partial class HomeViewModel : BaseViewModel
     private readonly IHistoryRepository _historyRepository;
     private readonly ISpeechService _speechService;
     private readonly IHapticService _hapticService;
+    private readonly ILocationService _locationService;
 
     [ObservableProperty]
     private string todayCalories = "0 kcal";
 
     [ObservableProperty]
-    private string latestSummary = "暂无记录";
+    private string latestSummary = "No records yet";
 
-    public HomeViewModel(IHistoryRepository historyRepository, ISpeechService speechService, IHapticService hapticService)
+    [ObservableProperty]
+    private string speechMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool isSpeaking;
+
+    [ObservableProperty]
+    private string locationText = "Location not checked";
+
+    public HomeViewModel(
+        IHistoryRepository historyRepository,
+        ISpeechService speechService,
+        IHapticService hapticService,
+        ILocationService locationService)
     {
         _historyRepository = historyRepository;
         _speechService = speechService;
         _hapticService = hapticService;
+        _locationService = locationService;
     }
 
     [RelayCommand]
@@ -38,12 +53,12 @@ public partial class HomeViewModel : BaseViewModel
 
             var latest = await _historyRepository.QueryAsync(new HistoryQuery { Limit = 3 }, CancellationToken.None);
             LatestSummary = latest.Count == 0
-                ? "暂无记录"
+                ? "No records yet"
                 : string.Join(" | ", latest.Select(x => $"{x.RecognizedFood}:{x.Calories:F0}"));
         }
-        catch (Exception)
+        catch
         {
-            ErrorMessage = "加载失败，请稍后重试。";
+            ErrorMessage = "Failed to load home data. Please retry.";
         }
         finally
         {
@@ -54,8 +69,62 @@ public partial class HomeViewModel : BaseViewModel
     [RelayCommand]
     private async Task SpeakSummaryAsync()
     {
-        await _speechService.SpeakAsync($"今日热量 {TodayCalories}，最近记录：{LatestSummary}", CancellationToken.None);
-        _hapticService.NotifySuccess();
+        if (IsSpeaking)
+        {
+            return;
+        }
+
+        ErrorMessage = null;
+        SpeechMessage = "Speaking summary...";
+        IsSpeaking = true;
+
+        try
+        {
+            var spoken = await _speechService.SpeakAsync(
+                $"Today calories {TodayCalories}. Latest records: {LatestSummary}",
+                CancellationToken.None);
+
+            if (!spoken)
+            {
+                SpeechMessage = string.Empty;
+                ErrorMessage = "Speech is unavailable or disabled in Settings.";
+                return;
+            }
+
+            SpeechMessage = "Summary spoken.";
+            _hapticService.NotifySuccess();
+        }
+        catch
+        {
+            SpeechMessage = string.Empty;
+            ErrorMessage = "Speech failed. Please try again.";
+        }
+        finally
+        {
+            IsSpeaking = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RefreshLocationAsync()
+    {
+        ErrorMessage = null;
+
+        try
+        {
+            var address = await _locationService.GetCurrentAddressAsync(CancellationToken.None);
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                LocationText = "Location unavailable. Please enable permission or set emulator location.";
+                return;
+            }
+
+            LocationText = address;
+            _hapticService.NotifySuccess();
+        }
+        catch
+        {
+            LocationText = "Failed to get location. Please retry.";
+        }
     }
 }
-

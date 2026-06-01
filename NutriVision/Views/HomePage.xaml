@@ -37,6 +37,19 @@
                         Command="{Binding SpeakSummaryCommand}" />
             </Grid>
 
+            <Border Padding="12" StrokeShape="RoundRectangle 10">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Location check" FontAttributes="Bold" />
+                    <Button Text="Get Location"
+                            SemanticProperties.Description="Get current location without scanning"
+                            Command="{Binding RefreshLocationCommand}" />
+                    <Label Text="{Binding LocationText}" LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Border>
+
+            <ActivityIndicator IsRunning="{Binding IsSpeaking}"
+                               IsVisible="{Binding IsSpeaking}" />
+            <Label Text="{Binding SpeechMessage}" TextColor="{DynamicResource AppSuccessTextColor}" />
             <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
         </VerticalStackLayout>
     </ScrollView>

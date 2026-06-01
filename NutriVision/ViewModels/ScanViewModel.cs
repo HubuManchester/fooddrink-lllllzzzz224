@@ -71,10 +71,13 @@ public partial class ScanViewModel : BaseViewModel
             await SaveAndPresentAsync(session, CancellationToken.None);
             StatusText = "Scan success and saved";
         }
-        catch
+        catch (Exception ex)
         {
             ErrorMessage = "Processing failed. Please retry.";
             StatusText = "Processing failed";
+#if DEBUG
+            StatusText = $"Processing failed ({ex.GetType().Name})";
+#endif
         }
         finally
         {
@@ -138,10 +141,13 @@ public partial class ScanViewModel : BaseViewModel
             await SaveAndPresentAsync(session, CancellationToken.None);
             StatusText = "Voice input success and saved";
         }
-        catch
+        catch (Exception ex)
         {
             ErrorMessage = "Voice input failed. Please try again.";
             StatusText = "Voice input unavailable";
+#if DEBUG
+            StatusText = $"Voice input failed ({ex.GetType().Name})";
+#endif
         }
         finally
         {
@@ -155,7 +161,11 @@ public partial class ScanViewModel : BaseViewModel
         RecognizedFood = session.RecognizedFood;
         Location = session.Location;
         NutritionText = $"Calories {session.Calories:F0} kcal | Protein {session.Protein:F1}g | Fat {session.Fat:F1}g | Carbs {session.Carbs:F1}g";
-        await _speechService.SpeakAsync($"Recognized {session.RecognizedFood}, calories {session.Calories:F0}.", ct);
+        var spoken = await _speechService.SpeakAsync($"Recognized {session.RecognizedFood}, calories {session.Calories:F0}.", ct);
+        if (!spoken)
+        {
+            ErrorMessage = "Speech is unavailable on this device.";
+        }
         _hapticService.NotifySuccess();
     }
 
