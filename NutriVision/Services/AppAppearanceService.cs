@@ -64,6 +64,10 @@ public sealed class AppAppearanceService : IAppAppearanceService
             app.Resources["AppButtonTextColor"] = Color.FromArgb("#000000");
             app.Resources["AppErrorTextColor"] = Color.FromArgb("#FF6B6B");
             app.Resources["AppSuccessTextColor"] = Color.FromArgb("#7CFF7C");
+            app.Resources["AppCardBackgroundColor"] = Color.FromArgb("#0F0F0F");
+            app.Resources["AppCardBorderColor"] = Color.FromArgb("#FFFFFF");
+            app.Resources["AppChipBackgroundColor"] = Color.FromArgb("#FFD800");
+            app.Resources["AppChipTextColor"] = Color.FromArgb("#000000");
             return;
         }
 
@@ -72,23 +76,31 @@ public sealed class AppAppearanceService : IAppAppearanceService
 
         if (isDark)
         {
-            app.Resources["AppPageBackgroundColor"] = Color.FromArgb("#141414");
-            app.Resources["AppTextColor"] = Color.FromArgb("#FFFFFF");
-            app.Resources["AppSecondaryTextColor"] = Color.FromArgb("#C8C8C8");
-            app.Resources["AppButtonBackgroundColor"] = Color.FromArgb("#AC99EA");
-            app.Resources["AppButtonTextColor"] = Color.FromArgb("#242424");
+            app.Resources["AppPageBackgroundColor"] = Color.FromArgb("#0F1115");
+            app.Resources["AppTextColor"] = Color.FromArgb("#F7F9FC");
+            app.Resources["AppSecondaryTextColor"] = Color.FromArgb("#AEB7C2");
+            app.Resources["AppButtonBackgroundColor"] = Color.FromArgb("#0A84FF");
+            app.Resources["AppButtonTextColor"] = Color.FromArgb("#FFFFFF");
             app.Resources["AppErrorTextColor"] = Color.FromArgb("#FF8A80");
-            app.Resources["AppSuccessTextColor"] = Color.FromArgb("#9BE7A0");
+            app.Resources["AppSuccessTextColor"] = Color.FromArgb("#6EE787");
+            app.Resources["AppCardBackgroundColor"] = Color.FromArgb("#1FD1D8E0");
+            app.Resources["AppCardBorderColor"] = Color.FromArgb("#2FFFFFFF");
+            app.Resources["AppChipBackgroundColor"] = Color.FromArgb("#1F0A84FF");
+            app.Resources["AppChipTextColor"] = Color.FromArgb("#7EBBFF");
         }
         else
         {
-            app.Resources["AppPageBackgroundColor"] = Color.FromArgb("#FFFFFF");
-            app.Resources["AppTextColor"] = Color.FromArgb("#000000");
-            app.Resources["AppSecondaryTextColor"] = Color.FromArgb("#212121");
-            app.Resources["AppButtonBackgroundColor"] = Color.FromArgb("#512BD4");
+            app.Resources["AppPageBackgroundColor"] = Color.FromArgb("#F3F6FB");
+            app.Resources["AppTextColor"] = Color.FromArgb("#0F172A");
+            app.Resources["AppSecondaryTextColor"] = Color.FromArgb("#64748B");
+            app.Resources["AppButtonBackgroundColor"] = Color.FromArgb("#0A84FF");
             app.Resources["AppButtonTextColor"] = Color.FromArgb("#FFFFFF");
             app.Resources["AppErrorTextColor"] = Color.FromArgb("#D32F2F");
             app.Resources["AppSuccessTextColor"] = Color.FromArgb("#2E7D32");
+            app.Resources["AppCardBackgroundColor"] = Color.FromArgb("#CCFFFFFF");
+            app.Resources["AppCardBorderColor"] = Color.FromArgb("#2EFFFFFF");
+            app.Resources["AppChipBackgroundColor"] = Color.FromArgb("#120A84FF");
+            app.Resources["AppChipTextColor"] = Color.FromArgb("#0A84FF");
         }
     }
 }

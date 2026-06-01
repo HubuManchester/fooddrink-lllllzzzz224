@@ -7,6 +7,9 @@ namespace NutriVision.Services;
 public sealed class MicrophoneService : IMicrophoneService
 {
     private const int HResultSpeechPrivacyDeclined = unchecked((int)0x80045509);
+    private static readonly TimeSpan FirstListenWindow = TimeSpan.FromSeconds(6);
+    private static readonly TimeSpan RetryListenWindow = TimeSpan.FromSeconds(8);
+    private static readonly TimeSpan CompletionWaitWindow = TimeSpan.FromSeconds(3);
 
     public async Task<VoiceInputResult> ListenForFoodNameAsync(CancellationToken ct)
     {
@@ -37,30 +40,31 @@ public sealed class MicrophoneService : IMicrophoneService
 
             try
             {
-                var options = new SpeechToTextOptions
-                {
-                    Culture = CultureInfo.CurrentCulture,
-                    ShouldReportPartialResults = true
-                };
+                var firstAttempt = await ListenOnceAsync(
+                    speechToText,
+                    completed,
+                    () => latestPartial,
+                    FirstListenWindow,
+                    ct);
 
-                await speechToText.StartListenAsync(options, ct);
-                await Task.Delay(TimeSpan.FromSeconds(4), ct);
-                await speechToText.StopListenAsync(CancellationToken.None);
-
-                SpeechToTextResult? result = null;
-                try
+                if (!string.IsNullOrWhiteSpace(firstAttempt))
                 {
-                    result = await completed.Task.WaitAsync(TimeSpan.FromSeconds(4), ct);
-                }
-                catch
-                {
-                    // If completion callback is late, fallback to partial text.
+                    return VoiceInputResult.Success(firstAttempt.Trim().ToLowerInvariant());
                 }
 
-                var finalText = result?.Text ?? latestPartial;
-                return string.IsNullOrWhiteSpace(finalText)
+                // Retry once with a longer listen window for emulator/slow-start recognition.
+                latestPartial = null;
+                completed = new TaskCompletionSource<SpeechToTextResult>(TaskCreationOptions.RunContinuationsAsynchronously);
+                var secondAttempt = await ListenOnceAsync(
+                    speechToText,
+                    completed,
+                    () => latestPartial,
+                    RetryListenWindow,
+                    ct);
+
+                return string.IsNullOrWhiteSpace(secondAttempt)
                     ? VoiceInputResult.Fail(VoiceInputFailureReason.NoSpeechDetected)
-                    : VoiceInputResult.Success(finalText.Trim().ToLowerInvariant());
+                    : VoiceInputResult.Success(secondAttempt.Trim().ToLowerInvariant());
             }
             finally
             {
@@ -93,5 +97,40 @@ public sealed class MicrophoneService : IMicrophoneService
             var detail = $"{ex.GetType().Name} (0x{ex.HResult:X8}): {ex.Message}";
             return VoiceInputResult.Fail(VoiceInputFailureReason.Unknown, detail);
         }
+    }
+
+    private static async Task<string?> ListenOnceAsync(
+        ISpeechToText speechToText,
+        TaskCompletionSource<SpeechToTextResult> completed,
+        Func<string?> getLatestPartial,
+        TimeSpan listenWindow,
+        CancellationToken ct)
+    {
+        var options = new SpeechToTextOptions
+        {
+            Culture = CultureInfo.CurrentCulture,
+            ShouldReportPartialResults = true
+        };
+
+        await speechToText.StartListenAsync(options, ct);
+
+        var timeoutTask = Task.Delay(listenWindow, ct);
+        var finished = await Task.WhenAny(completed.Task, timeoutTask);
+        if (finished == timeoutTask)
+        {
+            await speechToText.StopListenAsync(CancellationToken.None);
+        }
+
+        SpeechToTextResult? result = null;
+        try
+        {
+            result = await completed.Task.WaitAsync(CompletionWaitWindow, ct);
+        }
+        catch
+        {
+            // Completion can be delayed; partial text remains a valid fallback.
+        }
+
+        return result?.Text ?? getLatestPartial();
     }
 }

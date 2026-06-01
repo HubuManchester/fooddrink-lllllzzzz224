@@ -14,9 +14,13 @@
     </Style>
 
     <Style TargetType="Border">
-        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}" />
-        <Setter Property="StrokeShape" Value="Rectangle"/>
+        <Setter Property="BackgroundColor" Value="{DynamicResource AppCardBackgroundColor}" />
+        <Setter Property="Stroke" Value="{DynamicResource AppCardBorderColor}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 18"/>
         <Setter Property="StrokeThickness" Value="1"/>
+        <Setter Property="Shadow">
+            <Shadow Brush="#22000000" Offset="0,8" Radius="20" Opacity="0.5"/>
+        </Setter>
     </Style>
 
     <Style TargetType="BoxView">
@@ -30,11 +34,11 @@
     <Style TargetType="Button">
         <Setter Property="TextColor" Value="{DynamicResource AppButtonTextColor}" />
         <Setter Property="BackgroundColor" Value="{DynamicResource AppButtonBackgroundColor}" />
-        <Setter Property="FontFamily" Value="OpenSansRegular"/>
+        <Setter Property="FontFamily" Value="OpenSansSemibold"/>
         <Setter Property="FontSize" Value="{DynamicResource AppFontSize}"/>
         <Setter Property="BorderWidth" Value="0"/>
-        <Setter Property="CornerRadius" Value="8"/>
-        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="16,12"/>
         <Setter Property="MinimumHeightRequest" Value="44"/>
         <Setter Property="MinimumWidthRequest" Value="44"/>
         <Setter Property="VisualStateManager.VisualStateGroups">
@@ -416,16 +420,16 @@
     </Style>
 
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
-        <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource SecondaryDarkText}}" />
-        <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource SecondaryDarkText}}" />
+        <Setter Property="Shell.BackgroundColor" Value="{DynamicResource AppPageBackgroundColor}" />
+        <Setter Property="Shell.ForegroundColor" Value="{DynamicResource AppTextColor}" />
+        <Setter Property="Shell.TitleColor" Value="{DynamicResource AppTextColor}" />
         <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
-        <Setter Property="Shell.UnselectedColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray200}}" />
+        <Setter Property="Shell.UnselectedColor" Value="{DynamicResource AppSecondaryTextColor}" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
-        <Setter Property="Shell.TabBarBackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}" />
-        <Setter Property="Shell.TabBarForegroundColor" Value="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource White}}" />
-        <Setter Property="Shell.TabBarTitleColor" Value="{AppThemeBinding Light={StaticResource Magenta}, Dark={StaticResource White}}" />
-        <Setter Property="Shell.TabBarUnselectedColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray200}}" />
+        <Setter Property="Shell.TabBarBackgroundColor" Value="{DynamicResource AppCardBackgroundColor}" />
+        <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource AppChipTextColor}" />
+        <Setter Property="Shell.TabBarTitleColor" Value="{DynamicResource AppChipTextColor}" />
+        <Setter Property="Shell.TabBarUnselectedColor" Value="{DynamicResource AppSecondaryTextColor}" />
     </Style>
 
     <Style TargetType="NavigationPage">

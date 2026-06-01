@@ -6,6 +6,7 @@ namespace NutriVision.Services;
 public sealed class LocationService : ILocationService
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private static readonly TimeSpan DeviceFastPathWindow = TimeSpan.FromSeconds(3);
 
     public LocationService(IHttpClientFactory httpClientFactory)
     {
@@ -14,16 +15,31 @@ public sealed class LocationService : ILocationService
 
     public async Task<string?> GetCurrentAddressAsync(CancellationToken ct)
     {
-        var deviceAddress = await TryGetDeviceAddressAsync();
-        if (!string.IsNullOrWhiteSpace(deviceAddress))
+        var deviceTask = TryGetDeviceAddressAsync(ct);
+        var ipTask = TryGetIpAddressAsync(ct);
+
+        // Give device GPS a short head start; fallback to IP early if GPS is slow.
+        var fastPath = await Task.WhenAny(deviceTask, Task.Delay(DeviceFastPathWindow, ct));
+        if (fastPath == deviceTask)
         {
-            return deviceAddress;
+            var deviceAddress = await AwaitSafe(deviceTask);
+            if (!string.IsNullOrWhiteSpace(deviceAddress))
+            {
+                return deviceAddress;
+            }
         }
 
-        return await TryGetIpAddressAsync(ct);
+        var ipAddress = await AwaitSafe(ipTask);
+        if (!string.IsNullOrWhiteSpace(ipAddress))
+        {
+            return ipAddress;
+        }
+
+        // If IP failed, still accept late device result.
+        return await AwaitSafe(deviceTask);
     }
 
-    private static async Task<string?> TryGetDeviceAddressAsync()
+    private static async Task<string?> TryGetDeviceAddressAsync(CancellationToken ct)
     {
         try
         {
@@ -39,7 +55,9 @@ public sealed class LocationService : ILocationService
             }
 
             var location = await Geolocation.GetLastKnownLocationAsync();
-            location ??= await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(8)));
+            location ??= await Geolocation.GetLocationAsync(
+                new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(6)),
+                ct);
             if (location is null)
             {
                 return null;
@@ -56,6 +74,18 @@ public sealed class LocationService : ILocationService
             var country = place.CountryName ?? string.Empty;
             var road = place.Thoroughfare ?? string.Empty;
             return $"{city} {road} {country}".Trim();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static async Task<string?> AwaitSafe(Task<string?> task)
+    {
+        try
+        {
+            return await task;
         }
         catch
         {
