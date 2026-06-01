@@ -32,6 +32,7 @@ public static class MauiProgram
         });
 
         // Backend services
+        builder.Services.AddHttpClient();
         builder.Services.AddSingleton<IHistoryRepository, HistoryRepository>();
         builder.Services.AddSingleton<ILocalFallbackRecognitionService, LocalFallbackRecognitionService>();
         builder.Services.AddSingleton<INutritionService, NutritionService>();

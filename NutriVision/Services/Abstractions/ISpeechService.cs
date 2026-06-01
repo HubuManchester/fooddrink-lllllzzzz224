@@ -2,6 +2,5 @@ namespace NutriVision.Services.Abstractions;
 
 public interface ISpeechService
 {
-    Task SpeakAsync(string text, CancellationToken ct);
+    Task<bool> SpeakAsync(string text, CancellationToken ct);
 }
-
