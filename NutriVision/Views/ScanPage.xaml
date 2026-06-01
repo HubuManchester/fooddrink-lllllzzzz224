@@ -5,12 +5,52 @@
              x:Class="NutriVision.Views.ScanPage"
              x:DataType="viewModels:ScanViewModel"
              Title="Scan">
+    <ContentPage.Resources>
+        <Style x:Key="SectionTitleStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="{DynamicResource AppSecondaryTextColor}" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextTransform" Value="Uppercase" />
+        </Style>
+        <Style x:Key="ChipLabelStyle" TargetType="Label">
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource AppChipBackgroundColor}" />
+            <Setter Property="TextColor" Value="{DynamicResource AppChipTextColor}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+    </ContentPage.Resources>
     <ScrollView>
-        <VerticalStackLayout Padding="{OnIdiom Phone='16,12', Tablet='28,20', Desktop='32,20'}"
-                             Spacing="12">
-            <Label Text="Food Recognition"
+        <VerticalStackLayout Padding="{OnIdiom Phone='18,16', Tablet='28,20', Desktop='32,20'}"
+                             Spacing="16">
+            <Label Text="Food Recognition Lab"
                    FontSize="{DynamicResource AppSubHeadlineFontSize}"
                    FontAttributes="Bold" />
+            <Label Text="Capture, voice input and local fallback in one workflow."
+                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+
+            <Border Padding="0">
+                <Grid HeightRequest="140">
+                    <Image Aspect="AspectFill" Source="card_lowcal.png" />
+                    <Grid BackgroundColor="#4D000000"/>
+                    <VerticalStackLayout Padding="14" VerticalOptions="End">
+                        <Label Text="Scan -> Analyze -> Save"
+                               TextColor="White"
+                               FontAttributes="Bold"
+                               FontSize="20" />
+                        <Label Text="Nutrition tracking in one tap"
+                               TextColor="#E5FFFFFF" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <FlexLayout Wrap="Wrap">
+                <Label Text="CAMERA" Style="{StaticResource ChipLabelStyle}" />
+                <Label Text="VOICE INPUT" Style="{StaticResource ChipLabelStyle}" />
+                <Label Text="CALORIE LOG" Style="{StaticResource ChipLabelStyle}" />
+                <Label Text="AUTO SAVE" Style="{StaticResource ChipLabelStyle}" />
+            </FlexLayout>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                 <Button Text="Capture And Recognize"
@@ -21,14 +61,22 @@
                         SemanticProperties.Description="Use microphone to speak food name"
                         Command="{Binding VoiceInputCommand}" />
             </Grid>
+            <Label Text="Tip: camera page is system UI. Use Android Back key to cancel and return."
+                   TextColor="{DynamicResource AppSecondaryTextColor}"
+                   FontSize="12" />
 
-            <Border Padding="12" StrokeShape="RoundRectangle 10">
-                <VerticalStackLayout Spacing="8">
+            <Border Padding="16">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Result Panel" Style="{StaticResource SectionTitleStyle}" />
                     <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
-                    <Label Text="{Binding StatusText}" />
-                    <Label Text="{Binding RecognizedFood}" FontAttributes="Bold" />
-                    <Label Text="{Binding NutritionText}" LineBreakMode="WordWrap" />
-                    <Label Text="{Binding Location}" LineBreakMode="WordWrap" />
+                    <Label Text="{Binding StatusText}" TextColor="{DynamicResource AppSecondaryTextColor}" />
+                    <Label Text="{Binding RecognizedFood}" FontAttributes="Bold" FontSize="22" />
+                    <Border Padding="12">
+                        <Label Text="{Binding NutritionText}" LineBreakMode="WordWrap" />
+                    </Border>
+                    <Border Padding="12">
+                        <Label Text="{Binding Location}" LineBreakMode="WordWrap" />
+                    </Border>
                     <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
                 </VerticalStackLayout>
             </Border>

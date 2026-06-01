@@ -6,12 +6,49 @@
              x:Class="NutriVision.Views.StatisticsPage"
              x:DataType="viewModels:StatisticsViewModel"
              Title="Statistics">
+    <ContentPage.Resources>
+        <Style x:Key="SectionTitleStyle" TargetType="Label">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="TextColor" Value="{DynamicResource AppSecondaryTextColor}" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="TextTransform" Value="Uppercase" />
+        </Style>
+        <Style x:Key="ChipLabelStyle" TargetType="Label">
+            <Setter Property="Padding" Value="12,7" />
+            <Setter Property="BackgroundColor" Value="{DynamicResource AppChipBackgroundColor}" />
+            <Setter Property="TextColor" Value="{DynamicResource AppChipTextColor}" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="Margin" Value="0,0,8,8" />
+        </Style>
+    </ContentPage.Resources>
     <ScrollView>
-        <VerticalStackLayout Padding="{OnIdiom Phone='16,12', Tablet='28,20', Desktop='32,20'}"
-                             Spacing="12">
-            <Label Text="Statistics"
+        <VerticalStackLayout Padding="{OnIdiom Phone='18,16', Tablet='28,20', Desktop='32,20'}"
+                             Spacing="16">
+            <Label Text="Nutrition Analytics"
                    FontSize="{DynamicResource AppSubHeadlineFontSize}"
                    FontAttributes="Bold" />
+            <Label Text="7-day trend and macro distribution."
+                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+
+            <Border Padding="0">
+                <Grid HeightRequest="126">
+                    <Image Aspect="AspectFill" Source="card_hydration.png" />
+                    <Grid BackgroundColor="#40000000"/>
+                    <VerticalStackLayout Padding="14" VerticalOptions="End">
+                        <Label Text="Weekly nutrition insights"
+                               TextColor="White"
+                               FontAttributes="Bold"
+                               FontSize="20" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <FlexLayout Wrap="Wrap">
+                <Label Text="TREND" Style="{StaticResource ChipLabelStyle}" />
+                <Label Text="MACRO RATIO" Style="{StaticResource ChipLabelStyle}" />
+                <Label Text="LIVE SUMMARY" Style="{StaticResource ChipLabelStyle}" />
+            </FlexLayout>
 
             <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                 <VerticalStackLayout Spacing="2">
@@ -26,12 +63,17 @@
                         SemanticProperties.Description="Refresh statistics data" />
             </Grid>
 
-            <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
-            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+            <Border Padding="14">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Status" Style="{StaticResource SectionTitleStyle}" />
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                    <Label Text="{Binding ErrorMessage}" TextColor="{DynamicResource AppErrorTextColor}" />
+                </VerticalStackLayout>
+            </Border>
 
-            <Border Padding="12" StrokeShape="RoundRectangle 10">
+            <Border Padding="16">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="7-Day Calories Trend" FontAttributes="Bold" />
+                    <Label Text="7-Day Calories Trend" Style="{StaticResource SectionTitleStyle}" />
                     <CollectionView ItemsSource="{Binding DailyTrend}" SelectionMode="None">
                         <CollectionView.EmptyView>
                             <Label Text="No data yet."
@@ -53,9 +95,9 @@
                 </VerticalStackLayout>
             </Border>
 
-            <Border Padding="12" StrokeShape="RoundRectangle 10">
+            <Border Padding="16">
                 <VerticalStackLayout Spacing="10">
-                    <Label Text="Macro Ratio" FontAttributes="Bold" />
+                    <Label Text="Macro Ratio" Style="{StaticResource SectionTitleStyle}" />
 
                     <Label Text="{Binding ProteinPercent, StringFormat='Protein {0:F1}%'}" />
                     <ProgressBar Progress="{Binding ProteinProgress}" />

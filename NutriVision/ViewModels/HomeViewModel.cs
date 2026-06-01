@@ -11,6 +11,7 @@ public partial class HomeViewModel : BaseViewModel
     private readonly ISpeechService _speechService;
     private readonly IHapticService _hapticService;
     private readonly ILocationService _locationService;
+    private CancellationTokenSource? _locationPopupCts;
 
     [ObservableProperty]
     private string todayCalories = "0 kcal";
@@ -26,6 +27,12 @@ public partial class HomeViewModel : BaseViewModel
 
     [ObservableProperty]
     private string locationText = "Location not checked";
+
+    [ObservableProperty]
+    private bool isLocationPopupVisible;
+
+    [ObservableProperty]
+    private string locationPopupMessage = string.Empty;
 
     public HomeViewModel(
         IHistoryRepository historyRepository,
@@ -115,16 +122,51 @@ public partial class HomeViewModel : BaseViewModel
             var address = await _locationService.GetCurrentAddressAsync(CancellationToken.None);
             if (string.IsNullOrWhiteSpace(address))
             {
-                LocationText = "Location unavailable. Please enable permission or set emulator location.";
+                const string message = "Location unavailable. Please enable permission or set emulator location.";
+                LocationText = message;
+                ShowLocationPopup(message);
                 return;
             }
 
             LocationText = address;
+            ShowLocationPopup(address);
             _hapticService.NotifySuccess();
         }
         catch
         {
-            LocationText = "Failed to get location. Please retry.";
+            const string message = "Failed to get location. Please retry.";
+            LocationText = message;
+            ShowLocationPopup(message);
+        }
+    }
+
+    [RelayCommand]
+    private void DismissLocationPopup()
+    {
+        _locationPopupCts?.Cancel();
+        IsLocationPopupVisible = false;
+    }
+
+    private void ShowLocationPopup(string message)
+    {
+        _locationPopupCts?.Cancel();
+        _locationPopupCts = new CancellationTokenSource();
+
+        LocationPopupMessage = message;
+        IsLocationPopupVisible = true;
+
+        _ = HideLocationPopupLaterAsync(_locationPopupCts.Token);
+    }
+
+    private async Task HideLocationPopupLaterAsync(CancellationToken token)
+    {
+        try
+        {
+            await Task.Delay(TimeSpan.FromSeconds(6), token);
+            await MainThread.InvokeOnMainThreadAsync(() => IsLocationPopupVisible = false);
+        }
+        catch (OperationCanceledException)
+        {
         }
     }
 }

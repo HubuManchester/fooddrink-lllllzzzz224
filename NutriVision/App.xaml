@@ -12,10 +12,14 @@
             <Color x:Key="AppPageBackgroundColor">White</Color>
             <Color x:Key="AppTextColor">Black</Color>
             <Color x:Key="AppSecondaryTextColor">#212121</Color>
-            <Color x:Key="AppButtonBackgroundColor">#512BD4</Color>
+            <Color x:Key="AppButtonBackgroundColor">#0A84FF</Color>
             <Color x:Key="AppButtonTextColor">White</Color>
             <Color x:Key="AppErrorTextColor">#D32F2F</Color>
             <Color x:Key="AppSuccessTextColor">#2E7D32</Color>
+            <Color x:Key="AppCardBackgroundColor">#CCFFFFFF</Color>
+            <Color x:Key="AppCardBorderColor">#2EFFFFFF</Color>
+            <Color x:Key="AppChipBackgroundColor">#120A84FF</Color>
+            <Color x:Key="AppChipTextColor">#0A84FF</Color>
             <x:Double x:Key="AppFontSize">14</x:Double>
             <x:Double x:Key="AppSubHeadlineFontSize">24</x:Double>
             <x:Double x:Key="AppHeadlineFontSize">32</x:Double>

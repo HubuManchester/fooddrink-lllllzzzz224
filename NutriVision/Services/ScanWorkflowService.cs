@@ -51,7 +51,7 @@ public sealed class ScanWorkflowService : IScanWorkflowService
 
         if (photo is null)
         {
-            return (null, "Camera permission denied or capture canceled.");
+            return (null, "Capture was canceled. In Android camera, use the system Back key to exit.");
         }
 
         await using (photo.Content)
