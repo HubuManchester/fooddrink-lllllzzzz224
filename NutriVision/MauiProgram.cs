@@ -15,6 +15,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseMauiCommunityToolkitCamera()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -41,7 +42,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<ILocationService, LocationService>();
         builder.Services.AddSingleton<ISpeechService, SpeechService>();
         builder.Services.AddSingleton<IHapticService, HapticService>();
+        builder.Services.AddSingleton<IAccelerometerService, AccelerometerService>();
         builder.Services.AddSingleton<IShakeService, ShakeService>();
+        builder.Services.AddSingleton<ICompassService, CompassService>();
         builder.Services.AddSingleton<IMicrophoneService, MicrophoneService>();
         builder.Services.AddSingleton<ICameraService, CameraService>();
         builder.Services.AddSingleton<IScanWorkflowService, ScanWorkflowService>();

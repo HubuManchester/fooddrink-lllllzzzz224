@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:viewModels="clr-namespace:NutriVision.ViewModels"
              x:Class="NutriVision.Views.ScanPage"
              x:DataType="viewModels:ScanViewModel"
@@ -45,12 +46,42 @@
                 </Grid>
             </Border>
 
+            <Border Padding="0">
+                <Grid HeightRequest="220">
+                    <toolkit:CameraView x:Name="PreviewCamera"
+                                        HorizontalOptions="Fill"
+                                        VerticalOptions="Fill"
+                                        SemanticProperties.Description="Live camera preview for food scanning" />
+                    <Grid BackgroundColor="#22000000" />
+                    <VerticalStackLayout Padding="14" VerticalOptions="End" Spacing="4">
+                        <Label Text="Live camera preview"
+                               TextColor="White"
+                               FontAttributes="Bold" />
+                        <Label Text="{Binding CameraHint}"
+                               TextColor="#F0FFFFFF"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
             <FlexLayout Wrap="Wrap">
                 <Label Text="CAMERA" Style="{StaticResource ChipLabelStyle}" />
                 <Label Text="VOICE INPUT" Style="{StaticResource ChipLabelStyle}" />
                 <Label Text="CALORIE LOG" Style="{StaticResource ChipLabelStyle}" />
                 <Label Text="AUTO SAVE" Style="{StaticResource ChipLabelStyle}" />
+                <Label Text="FLASH" Style="{StaticResource ChipLabelStyle}" />
             </FlexLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button Text="{Binding FlashButtonText}"
+                        IsEnabled="{Binding IsFlashSupported}"
+                        SemanticProperties.Description="Toggle flashlight for camera preview"
+                        Command="{Binding ToggleFlashCommand}" />
+                <Label Grid.Column="1"
+                       Text="{Binding CameraHint}"
+                       VerticalTextAlignment="Center"
+                       TextColor="{DynamicResource AppSecondaryTextColor}" />
+            </Grid>
 
             <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                 <Button Text="Capture And Recognize"
@@ -61,7 +92,7 @@
                         SemanticProperties.Description="Use microphone to speak food name"
                         Command="{Binding VoiceInputCommand}" />
             </Grid>
-            <Label Text="Tip: camera page is system UI. Use Android Back key to cancel and return."
+            <Label Text="Tip: preview is embedded in the page. Turn on flash before capture when the scene is dark."
                    TextColor="{DynamicResource AppSecondaryTextColor}"
                    FontSize="12" />
 
