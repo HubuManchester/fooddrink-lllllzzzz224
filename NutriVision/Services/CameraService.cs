@@ -7,15 +7,32 @@ namespace NutriVision.Services;
 public sealed class CameraService : ICameraService
 {
     private bool _flashEnabled;
+    private ICameraPreviewHost? _previewHost;
 
-    public Task<bool> IsAvailableAsync(CancellationToken ct)
+    public async Task<bool> IsAvailableAsync(CancellationToken ct)
     {
-        _ = ct;
-        return Task.FromResult(MediaPicker.Default.IsCaptureSupported);
+        if (_previewHost is not null)
+        {
+            var permission = await EnsureCameraPermissionAsync();
+            return permission == PermissionStatus.Granted && await _previewHost.IsAvailableAsync(ct);
+        }
+
+        return MediaPicker.Default.IsCaptureSupported;
     }
 
     public async Task<CameraPhoto?> CaptureAsync(CancellationToken ct)
     {
+        if (_previewHost is not null)
+        {
+            var permission = await EnsureCameraPermissionAsync();
+            if (permission != PermissionStatus.Granted)
+            {
+                return null;
+            }
+
+            return await _previewHost.CaptureAsync(ct);
+        }
+
         if (!MediaPicker.Default.IsCaptureSupported)
         {
             return null;
@@ -23,12 +40,7 @@ public sealed class CameraService : ICameraService
 
         try
         {
-            var permission = await Permissions.CheckStatusAsync<Permissions.Camera>();
-            if (permission != PermissionStatus.Granted)
-            {
-                permission = await Permissions.RequestAsync<Permissions.Camera>();
-            }
-
+            var permission = await EnsureCameraPermissionAsync();
             if (permission != PermissionStatus.Granted)
             {
                 return null;
@@ -63,15 +75,72 @@ public sealed class CameraService : ICameraService
 
     public Task<bool> CanToggleFlashAsync(CancellationToken ct)
     {
-        _ = ct;
-        // MediaPicker does not expose flashlight control. Keep capability contract for later CameraView integration.
-        return Task.FromResult(false);
+        if (_previewHost is null)
+        {
+            return Task.FromResult(false);
+        }
+
+        return _previewHost.CanToggleFlashAsync(ct);
     }
 
-    public Task SetFlashAsync(bool enabled, CancellationToken ct)
+    public async Task SetFlashAsync(bool enabled, CancellationToken ct)
     {
-        _ = ct;
         _flashEnabled = enabled;
-        return Task.CompletedTask;
+
+        if (_previewHost is not null)
+        {
+            await _previewHost.SetFlashAsync(enabled, ct);
+        }
+    }
+
+    public void AttachPreviewHost(ICameraPreviewHost previewHost)
+    {
+        _previewHost = previewHost;
+    }
+
+    public void DetachPreviewHost()
+    {
+        _previewHost = null;
+    }
+
+    public async Task StartPreviewAsync(CancellationToken ct)
+    {
+        if (_previewHost is null)
+        {
+            return;
+        }
+
+        var permission = await EnsureCameraPermissionAsync();
+        if (permission != PermissionStatus.Granted)
+        {
+            return;
+        }
+
+        await _previewHost.StartPreviewAsync(ct);
+        if (_flashEnabled)
+        {
+            await _previewHost.SetFlashAsync(true, ct);
+        }
+    }
+
+    public Task StopPreviewAsync(CancellationToken ct)
+    {
+        if (_previewHost is null)
+        {
+            return Task.CompletedTask;
+        }
+
+        return _previewHost.StopPreviewAsync(ct);
+    }
+
+    private static async Task<PermissionStatus> EnsureCameraPermissionAsync()
+    {
+        var permission = await Permissions.CheckStatusAsync<Permissions.Camera>();
+        if (permission != PermissionStatus.Granted)
+        {
+            permission = await Permissions.RequestAsync<Permissions.Camera>();
+        }
+
+        return permission;
     }
 }

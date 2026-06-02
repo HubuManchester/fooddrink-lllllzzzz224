@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:NutriVision.ViewModels"
@@ -89,6 +89,101 @@
                         <Switch Grid.Column="1"
                                 IsToggled="{Binding HighContrastEnabled, Mode=TwoWay}"
                                 SemanticProperties.Description="Enable or disable high contrast mode" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Compass Demo" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Use Emulator > Extended controls > Virtual sensors to change heading."
+                           TextColor="{DynamicResource AppSecondaryTextColor}" />
+
+                    <Grid ColumnDefinitions="*,110" ColumnSpacing="14">
+                        <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                            <Label Text="{Binding CompassHeadingText}"
+                                   FontSize="28"
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding CompassDirection}"
+                                   TextColor="{DynamicResource AppAccentColor}"
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding CompassStatusText}"
+                                   LineBreakMode="WordWrap"
+                                   TextColor="{DynamicResource AppSecondaryTextColor}" />
+                        </VerticalStackLayout>
+
+                        <Border Grid.Column="1"
+                                WidthRequest="96"
+                                HeightRequest="96"
+                                StrokeThickness="1.5"
+                                BackgroundColor="{DynamicResource AppChipBackgroundColor}"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="48" />
+                            </Border.StrokeShape>
+                            <Grid>
+                                <Label Text="N"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Start"
+                                       Margin="0,8,0,0"
+                                       FontAttributes="Bold"
+                                       TextColor="{DynamicResource AppAccentColor}" />
+                                <Label Text="▲"
+                                       Rotation="{Binding CompassHeading}"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       TextColor="{DynamicResource AppTextColor}" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="Supported:" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="{Binding IsCompassSupported}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="Monitoring:" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="{Binding IsCompassMonitoring}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Padding="16">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Accelerometer Demo" Style="{StaticResource SectionTitleStyle}" />
+                    <Label Text="Use Emulator > Extended controls > Virtual sensors > Device Pose to update X, Y and Z."
+                           TextColor="{DynamicResource AppSecondaryTextColor}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Border Padding="12" BackgroundColor="{DynamicResource AppChipBackgroundColor}">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding AccelerometerXText}" FontAttributes="Bold" />
+                                <Label Text="{Binding AccelerometerYText}" FontAttributes="Bold" />
+                                <Label Text="{Binding AccelerometerZText}" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="1" Padding="12" BackgroundColor="{DynamicResource AppChipBackgroundColor}">
+                            <VerticalStackLayout Spacing="6" VerticalOptions="Center">
+                                <Label Text="{Binding AccelerometerMagnitudeText}"
+                                       FontSize="22"
+                                       FontAttributes="Bold" />
+                                <Label Text="{Binding AccelerometerStatusText}"
+                                       LineBreakMode="WordWrap"
+                                       TextColor="{DynamicResource AppSecondaryTextColor}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="Supported:" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="{Binding IsAccelerometerSupported}" />
+                    </Grid>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                        <Label Text="Monitoring:" FontAttributes="Bold" />
+                        <Label Grid.Column="1" Text="{Binding IsAccelerometerMonitoring}" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>

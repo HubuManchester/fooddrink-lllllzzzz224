@@ -7,6 +7,7 @@ namespace NutriVision.ViewModels;
 
 public partial class ScanViewModel : BaseViewModel
 {
+    private readonly ICameraService _cameraService;
     private readonly IScanWorkflowService _scanWorkflowService;
     private readonly IHistoryRepository _historyRepository;
     private readonly INutritionService _nutritionService;
@@ -28,7 +29,20 @@ public partial class ScanViewModel : BaseViewModel
     [ObservableProperty]
     private string nutritionText = "-";
 
+    [ObservableProperty]
+    private bool isFlashSupported;
+
+    [ObservableProperty]
+    private bool isFlashOn;
+
+    [ObservableProperty]
+    private string flashButtonText = "Flash unavailable";
+
+    [ObservableProperty]
+    private string cameraHint = "Camera preview is loading.";
+
     public ScanViewModel(
+        ICameraService cameraService,
         IScanWorkflowService scanWorkflowService,
         IHistoryRepository historyRepository,
         INutritionService nutritionService,
@@ -38,6 +52,7 @@ public partial class ScanViewModel : BaseViewModel
         IShakeService shakeService,
         IMicrophoneService microphoneService)
     {
+        _cameraService = cameraService;
         _scanWorkflowService = scanWorkflowService;
         _historyRepository = historyRepository;
         _nutritionService = nutritionService;
@@ -49,6 +64,76 @@ public partial class ScanViewModel : BaseViewModel
 
         _shakeService.Shaken += OnShaken;
         _shakeService.Start();
+    }
+
+    [RelayCommand]
+    private async Task InitializeCameraAsync()
+    {
+        ErrorMessage = null;
+
+        try
+        {
+            var available = await _cameraService.IsAvailableAsync(CancellationToken.None);
+            if (!available)
+            {
+                IsFlashSupported = false;
+                FlashButtonText = "Flash unavailable";
+                CameraHint = "Camera preview is unavailable on this device.";
+                return;
+            }
+
+            await _cameraService.StartPreviewAsync(CancellationToken.None);
+            IsFlashSupported = await _cameraService.CanToggleFlashAsync(CancellationToken.None);
+            FlashButtonText = IsFlashSupported
+                ? (IsFlashOn ? "Flash On" : "Flash Off")
+                : "Flash unavailable";
+            CameraHint = IsFlashSupported
+                ? "Live camera preview is active. Toggle flash before capturing."
+                : "Live camera preview is active. This camera does not support flash.";
+        }
+        catch
+        {
+            IsFlashSupported = false;
+            FlashButtonText = "Flash unavailable";
+            CameraHint = "Camera preview failed to start.";
+        }
+    }
+
+    [RelayCommand]
+    private async Task StopCameraAsync()
+    {
+        try
+        {
+            await _cameraService.StopPreviewAsync(CancellationToken.None);
+        }
+        catch
+        {
+        }
+    }
+
+    [RelayCommand]
+    private async Task ToggleFlashAsync()
+    {
+        if (!IsFlashSupported)
+        {
+            ErrorMessage = "Flash is unavailable on this camera.";
+            return;
+        }
+
+        try
+        {
+            var nextValue = !IsFlashOn;
+            await _cameraService.SetFlashAsync(nextValue, CancellationToken.None);
+            IsFlashOn = nextValue;
+            FlashButtonText = nextValue ? "Flash On" : "Flash Off";
+            CameraHint = nextValue
+                ? "Flash torch is enabled for low-light capture."
+                : "Flash torch is disabled.";
+        }
+        catch
+        {
+            ErrorMessage = "Flash toggle failed. Please retry.";
+        }
     }
 
     [RelayCommand]
